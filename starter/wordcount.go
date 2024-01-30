@@ -3,9 +3,11 @@ package main
 import (
 		"fmt"
 		"os"
-		"log"
-		"io/ioutil"
+		//"log"
+		//"io/ioutil"
 		"strings"
+		"regexp"
+		"strconv"
 	)
 
 var numWords = make(map[string]int)
@@ -40,21 +42,29 @@ func single_threaded(files []string) {
 			panic(err)
 		}
 		stringContent := string(content)
-		wordList := strings.Split(stringContent, " ")
-		//fmt.Printf(string(numWords))
+		re1 := regexp.MustCompile(`\p{P}|[^\S+]`)
+	
+		wordList := re1.Split(stringContent, -1)
+		fmt.Printf("wordList W", wordList)
 		for j := 0; j < len(wordList); j++{
 			createDict(wordList[j])
 		}
-	err1 := ioutil.WriteFile("output/single.txt", content, 0777)
-	if err1 != nil{
-		log.Fatalf("%v", err)
-		}
+	file, err := os.Create("output/single.txt")
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
+
+	for key, value := range numWords{
+		s := key + ": " + strconv.FormatInt(int64(value), 10) + "\n"
+		file.WriteString(s)
+	}
+	
 	fmt.Print(numWords)
 	//fmt.Print(output);
 	//fmt.Print(string(content));
 	//return content
-	
+}
 }
 
 func multi_threaded(files []string) {
