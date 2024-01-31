@@ -66,7 +66,12 @@ func write_to_file(filepath string, dict map[string] int){
 func read_file_chunk(chunkSize int64, startByte int64, filePath string){
 	// responsible for reading chunk of file
 	fmt.Print("reading chunk")
-	reader := strings.NewReader(filePath) 
+	content, err:= os.ReadFile(filePath)
+		if err != nil{
+			panic(err)
+		}
+		stringContent := string(content)
+	reader := strings.NewReader(stringContent) 
 	r := io.NewSectionReader(reader, startByte, chunkSize)
 	buf := make([]byte, 4)
 	n, err := r.ReadAt(buf, 2) 
