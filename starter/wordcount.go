@@ -4,7 +4,7 @@ import (
 		"fmt"
 		"os"
 		"log"
-		//"io/ioutil"
+		"io"
 		"strings"
 		"regexp"
 		"strconv"
@@ -46,7 +46,6 @@ func single_threaded(files []string) {
 	}
 	write_to_file("output/single.txt", numWordSingle)
 
-
 }
 
 func write_to_file(filepath string, dict map[string] int){
@@ -64,6 +63,19 @@ func write_to_file(filepath string, dict map[string] int){
 }
 
 
+func read_file_chunk(chunkSize int64, startByte int64, filePath string){
+	// responsible for reading chunk of file
+	fmt.Print("reading chunk")
+	reader := strings.NewReader(filePath) 
+	r := io.NewSectionReader(reader, startByte, chunkSize)
+	buf := make([]byte, 4)
+	n, err := r.ReadAt(buf, 2) 
+    if err != nil { 
+        panic(err) 
+    } 
+	fmt.Printf("Content in buffer: %s\n", string(buf)) 
+	fmt.Printf("n: %v\n", n) 
+}
 
 func multi_threaded(files []string) {
 	// TODO: Your multi-threaded implementation
@@ -74,7 +86,8 @@ func multi_threaded(files []string) {
 	//we have a file, split it into NUM_THREADS number of files/strings that we pass
 	//we call the goroutine thread Num_THREADS number of times, this fills in the diciotnary
 	for i := 0; i < len(files); i++{
-
+		// startByte is where the thread should start reading from
+		startByte := int64(0)
 		//divide file based on length
 		file, err := os.Open( files[i]) 
 	if err != nil {
@@ -85,8 +98,25 @@ func multi_threaded(files []string) {
     	log.Fatal(err)
 	}
 	fmt.Println( "file size" , fi.Size() )
-	sizeOFileChunk := fi.Size() / NUM_THREADS 
-	fmt.Print("size of chunk", sizeOFileChunk)
+	sizeOfFileChunk := fi.Size() / NUM_THREADS 
+	fmt.Print("size of chunk", sizeOfFileChunk)
+	// if remaining bytes of the file is smaller than file chunk edge case
+	if fi.Size() <= int64(startByte) + sizeOfFileChunk{
+		fmt.Print("remaining bytes less than size")
+		sizeOfFileChunk = fi.Size() - startByte
+	}
+	// checks if its at the end of the file
+	if startByte >= fi.Size(){
+		fmt.Print("end of search")
+	}else{
+		fmt.Print("else statement")
+		read_file_chunk(sizeOfFileChunk, startByte, files[i])
+		startByte = startByte + sizeOfFileChunk
+		// reader := strings.NewReader(files[i]) 
+		// r := io.NewSectionReader(reader, startByte, sizeOfFileChunk)
+		// buf := make([]byte, sizeOfFileChunk)
+	}
+	// check if startByte > sizeOfFileChunk
 		/*content, err:= os.ReadFile(files[i])
 		if err != nil{
 			panic(err)
