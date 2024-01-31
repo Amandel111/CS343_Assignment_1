@@ -73,7 +73,7 @@ func read_file_chunk(chunkSize int64, startByte int64, filePath string){
 		stringContent := string(content)
 	reader := strings.NewReader(stringContent) 
 	r := io.NewSectionReader(reader, startByte, chunkSize)
-	buf := make([]byte, 4)
+	buf := make([]byte, chunkSize)
 	n, err := r.Read(buf) 
     if err != nil { 
         panic(err) 
@@ -105,6 +105,7 @@ func multi_threaded(files []string) {
 	fmt.Println( "file size" , fi.Size() )
 	sizeOfFileChunk := fi.Size() / NUM_THREADS 
 	fmt.Print("size of chunk", sizeOfFileChunk)
+	// NOTE: DO WE NEED TO ADD A DOUBLE FOR LOOP TO LOOP THROUGH THE ENTIRE FILE
 	// if remaining bytes of the file is smaller than file chunk edge case
 	if fi.Size() <= int64(startByte) + sizeOfFileChunk{
 		fmt.Print("remaining bytes less than size")
