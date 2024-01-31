@@ -74,7 +74,7 @@ func read_file_chunk(chunkSize int64, startByte int64, filePath string){
 	reader := strings.NewReader(stringContent) 
 	r := io.NewSectionReader(reader, startByte, chunkSize)
 	buf := make([]byte, 4)
-	n, err := r.ReadAt(buf, 2) 
+	n, err := r.Read(buf) 
     if err != nil { 
         panic(err) 
     } 
